@@ -11,13 +11,34 @@ import { Upload } from "lucide-react"
 
 export default function Component() {
   const [step, setStep] = useState(1)
+  interface FormData {
+    [key: string]: string | File[];
+    patientName: string;
+    patientId: string;
+    dateOfBirth: string;
+    incidentDate: string;
+    incidentDescription: string;
+    insuranceIds: File[];
+    medicalHistory: File[];
+    treatmentPlans: File[];
+    consentForms: File[];
+    preauthorizations: File[];
+    xrays: File[];
+    perioChart: File[];
+  }
   const [formData, setFormData] = useState({
     patientName: "",
     patientId: "",
     dateOfBirth: "",
     incidentDate: "",
     incidentDescription: "",
-    documents: [] as File[],
+    insuranceIds: [] as File[],
+    medicalHistory: [] as File[],
+    treatmentPlans: [] as File[],
+    consentForms: [] as File[],
+    preauthorizations: [] as File[],
+    xrays: [] as File[],
+    perioChart: [] as File[],
   })
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -25,9 +46,12 @@ export default function Component() {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, documentType: keyof Pick<FormData, 'insuranceIds' | 'medicalHistory' | 'treatmentPlans' | 'consentForms' | 'preauthorizations' | 'xrays' | 'perioChart'>) => {
     if (e.target.files) {
-      setFormData((prev) => ({ ...prev, documents: [...prev.documents, ...Array.from(e.target.files || [])] }))
+      setFormData((prev) => ({
+        ...prev,
+        [documentType]: [...prev[documentType], ...Array.from(e.target.files || [])]
+      }))
     }
   }
 
@@ -44,13 +68,55 @@ export default function Component() {
     // Here you would typically send the formData to your backend
     console.log("Form submitted:", formData)
   }
+  type FileUploadKeys = 'insuranceIds' | 'medicalHistory' | 'treatmentPlans' | 'consentForms' | 'preauthorizations' | 'xrays' | 'perioChart';
+  const renderFileUploadStep = (title: string, documentType: FileUploadKeys) => (
+    <div className="space-y-4">
+      <h3 className="text-lg font-semibold text-blue-700">{title}</h3>
+      <div className="space-y-2">
+        <Label htmlFor="file-upload" className="block text-blue-600">
+            Upload Documents
+            </Label>
+            <div className="flex items-center justify-center w-full">
+            <Label
+                htmlFor="file-upload"
+                className="flex flex-col items-center justify-center w-full h-64 border-2 border-blue-300 border-dashed rounded-lg cursor-pointer bg-blue-50 hover:bg-blue-100 transition-colors duration-200"
+            >
+                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                <Upload className="w-10 h-10 mb-4 text-blue-500" />
+                <p className="mb-2 text-sm text-blue-600">
+                    <span className="font-semibold">Click to upload</span> or drag and drop
+                </p>
+                <p className="text-xs text-blue-500">PDF, PNG, JPG or GIF (MAX. 10MB)</p>
+                </div>
+                <Input
+                id="file-upload"
+                type="file"
+                multiple
+                onChange={(e) => handleFileUpload(e, documentType as keyof Pick<FormData, 'insuranceIds' | 'medicalHistory' | 'treatmentPlans' | 'consentForms' | 'preauthorizations' | 'xrays' | 'perioChart'>)}
+                className="hidden"
+            />
+            </Label>
+            </div>
+      </div>
+      {formData[documentType].length > 0 && (
+        <div className="bg-blue-50 p-4 rounded-lg">
+        <h4 className="font-medium mb-2 text-blue-700">Uploaded {title}:</h4>
+        <ul className="list-disc pl-5 text-blue-600">
+            {formData[documentType].map((doc: File, index: number) => (
+            <li key={index}>{doc.name}</li>
+            ))}
+        </ul>
+        </div>
+    )}
+    </div>
+  )
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-100 to-green-100 flex items-center justify-center p-4">
       <Card className="w-full max-w-3xl mx-auto shadow-lg bg-white bg-opacity-80 backdrop-blur-md">
         <CardHeader className="bg-gradient-to-r from-blue-500 to-green-500 text-white rounded-t-lg">
           <CardTitle className="text-2xl font-bold text-center">Patient Grievance Report</CardTitle>
-          <Progress value={(step / 4) * 100} className="w-full mt-4 bg-white bg-opacity-30" indicatorColor="bg-white" />
+          <Progress value={(step / 10) * 100} className="w-full mt-4 bg-white bg-opacity-30"/>
         </CardHeader>
         <CardContent className="mt-6">
           <form onSubmit={handleSubmit}>
@@ -98,9 +164,9 @@ export default function Component() {
 
             {step === 2 && (
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-green-700">Incident Details</h3>
+                <h3 className="text-lg font-semibold text-blue-700">Incident Details</h3>
                 <div className="space-y-2">
-                  <Label htmlFor="incidentDate" className="text-green-600">Incident Date</Label>
+                  <Label htmlFor="incidentDate" className="text-blue-600">Incident Date</Label>
                   <Input
                     id="incidentDate"
                     name="incidentDate"
@@ -108,75 +174,43 @@ export default function Component() {
                     value={formData.incidentDate}
                     onChange={handleInputChange}
                     required
-                    className="border-green-300 focus:border-green-500 focus:ring-green-500"
+                    className="border-blue-300 focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="incidentDescription" className="text-green-600">Incident Description</Label>
+                  <Label htmlFor="incidentDescription" className="text-blue-600">Incident Description</Label>
                   <Textarea
                     id="incidentDescription"
                     name="incidentDescription"
                     value={formData.incidentDescription}
                     onChange={handleInputChange}
                     required
-                    className="min-h-[100px] border-green-300 focus:border-green-500 focus:ring-green-500"
+                    className="min-h-[100px] border-blue-300 focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
               </div>
             )}
 
-            {step === 3 && (
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-blue-700">Document Upload</h3>
-                <div className="space-y-2">
-                  <Label htmlFor="file-upload" className="block text-blue-600">
-                    Upload Documents
-                  </Label>
-                  <div className="flex items-center justify-center w-full">
-                    <Label
-                      htmlFor="file-upload"
-                      className="flex flex-col items-center justify-center w-full h-64 border-2 border-blue-300 border-dashed rounded-lg cursor-pointer bg-blue-50 hover:bg-blue-100 transition-colors duration-200"
-                    >
-                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                        <Upload className="w-10 h-10 mb-4 text-blue-500" />
-                        <p className="mb-2 text-sm text-blue-600">
-                          <span className="font-semibold">Click to upload</span> or drag and drop
-                        </p>
-                        <p className="text-xs text-blue-500">PDF, PNG, JPG or GIF (MAX. 10MB)</p>
-                      </div>
-                      <Input
-                        id="file-upload"
-                        type="file"
-                        multiple
-                        onChange={handleFileUpload}
-                        className="hidden"
-                      />
-                    </Label>
-                  </div>
-                </div>
-                {formData.documents.length > 0 && (
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <h4 className="font-medium mb-2 text-blue-700">Uploaded Documents:</h4>
-                    <ul className="list-disc pl-5 text-blue-600">
-                      {formData.documents.map((doc, index) => (
-                        <li key={index}>{doc.name}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            )}
+            {step === 3 && renderFileUploadStep("Insurance/IDs", "insuranceIds")}
+            {step === 4 && renderFileUploadStep("Patient Medical History", "medicalHistory")}
+            {step === 5 && renderFileUploadStep("Treatment Plans", "treatmentPlans")}
+            {step === 6 && renderFileUploadStep("Consent Forms", "consentForms")}
+            {step === 7 && renderFileUploadStep("Preauthorizations", "preauthorizations")}
+            {step === 8 && renderFileUploadStep("X-Rays", "xrays")}
+            {step === 9 && renderFileUploadStep("Perio Chart", "perioChart")}
 
-            {step === 4 && (
+            {step === 10 && (
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-green-700">Review and Submit</h3>
-                <div className="space-y-2 bg-green-50 p-4 rounded-lg">
-                  <p><strong className="text-green-700">Patient Name:</strong> <span className="text-green-600">{formData.patientName}</span></p>
-                  <p><strong className="text-green-700">Patient ID:</strong> <span className="text-green-600">{formData.patientId}</span></p>
-                  <p><strong className="text-green-700">Date of Birth:</strong> <span className="text-green-600">{formData.dateOfBirth}</span></p>
-                  <p><strong className="text-green-700">Incident Date:</strong> <span className="text-green-600">{formData.incidentDate}</span></p>
-                  <p><strong className="text-green-700">Incident Description:</strong> <span className="text-green-600">{formData.incidentDescription}</span></p>
-                  <p><strong className="text-green-700">Uploaded Documents:</strong> <span className="text-green-600">{formData.documents.length}</span></p>
+                <h3 className="text-lg font-semibold text-blue-700">Review and Submit</h3>
+                <div className="space-y-2 bg-blue-50 p-4 rounded-lg">
+                  <p><strong className="text-blue-700">Patient Name:</strong> <span className="text-blue-600">{formData.patientName}</span></p>
+                  <p><strong className="text-blue-700">Patient ID:</strong> <span className="text-blue-600">{formData.patientId}</span></p>
+                  <p><strong className="text-blue-700">Date of Birth:</strong> <span className="text-blue-600">{formData.dateOfBirth}</span></p>
+                  <p><strong className="text-blue-700">Incident Date:</strong> <span className="text-blue-600">{formData.incidentDate}</span></p>
+                  <p><strong className="text-blue-700">Incident Description:</strong> <span className="text-blue-600">{formData.incidentDescription}</span></p>
+                  <p><strong className="text-blue-700">Uploaded Documents:</strong> <span className="text-blue-600">
+                    {Object.values(formData).filter(Array.isArray).reduce((total, arr) => total + arr.length, 0)}
+                    </span></p>
                 </div>
               </div>
             )}
@@ -188,7 +222,7 @@ export default function Component() {
               Previous
             </Button>
           )}
-          {step < 4 ? (
+          {step < 10 ? (
             <Button onClick={handleNext} className="ml-auto bg-gradient-to-r from-blue-500 to-green-500 hover:from-blue-600 hover:to-green-600 text-white">
               Next
             </Button>
