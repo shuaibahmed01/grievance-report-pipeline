@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Progress } from "@/components/ui/progress"
 import { Upload } from "lucide-react"
+import { renderFileUploadStep, FileUploadKeys } from './FileUploadStep';
 
 export default function Component() {
   const [step, setStep] = useState(1)
@@ -18,13 +19,6 @@ export default function Component() {
     dateOfBirth: string;
     incidentDate: string;
     incidentDescription: string;
-    insuranceIds: File[];
-    medicalHistory: File[];
-    treatmentPlans: File[];
-    consentForms: File[];
-    preauthorizations: File[];
-    xrays: File[];
-    perioChart: File[];
   }
   const [formData, setFormData] = useState({
     patientName: "",
@@ -46,7 +40,7 @@ export default function Component() {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, documentType: keyof Pick<FormData, 'insuranceIds' | 'medicalHistory' | 'treatmentPlans' | 'consentForms' | 'preauthorizations' | 'xrays' | 'perioChart'>) => {
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, documentType: FileUploadKeys) => {
     if (e.target.files) {
       setFormData((prev) => ({
         ...prev,
@@ -56,7 +50,7 @@ export default function Component() {
   }
 
   const handleNext = () => {
-    setStep((prev) => Math.min(prev + 1, 4))
+    setStep((prev) => Math.min(prev + 1, 10))
   }
 
   const handlePrevious = () => {
@@ -68,48 +62,9 @@ export default function Component() {
     // Here you would typically send the formData to your backend
     console.log("Form submitted:", formData)
   }
+
   type FileUploadKeys = 'insuranceIds' | 'medicalHistory' | 'treatmentPlans' | 'consentForms' | 'preauthorizations' | 'xrays' | 'perioChart';
-  const renderFileUploadStep = (title: string, documentType: FileUploadKeys) => (
-    <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-blue-700">{title}</h3>
-      <div className="space-y-2">
-        <Label htmlFor="file-upload" className="block text-blue-600">
-            Upload Documents
-            </Label>
-            <div className="flex items-center justify-center w-full">
-            <Label
-                htmlFor="file-upload"
-                className="flex flex-col items-center justify-center w-full h-64 border-2 border-blue-300 border-dashed rounded-lg cursor-pointer bg-blue-50 hover:bg-blue-100 transition-colors duration-200"
-            >
-                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                <Upload className="w-10 h-10 mb-4 text-blue-500" />
-                <p className="mb-2 text-sm text-blue-600">
-                    <span className="font-semibold">Click to upload</span> or drag and drop
-                </p>
-                <p className="text-xs text-blue-500">PDF, PNG, JPG or GIF (MAX. 10MB)</p>
-                </div>
-                <Input
-                id="file-upload"
-                type="file"
-                multiple
-                onChange={(e) => handleFileUpload(e, documentType as keyof Pick<FormData, 'insuranceIds' | 'medicalHistory' | 'treatmentPlans' | 'consentForms' | 'preauthorizations' | 'xrays' | 'perioChart'>)}
-                className="hidden"
-            />
-            </Label>
-            </div>
-      </div>
-      {formData[documentType].length > 0 && (
-        <div className="bg-blue-50 p-4 rounded-lg">
-        <h4 className="font-medium mb-2 text-blue-700">Uploaded {title}:</h4>
-        <ul className="list-disc pl-5 text-blue-600">
-            {formData[documentType].map((doc: File, index: number) => (
-            <li key={index}>{doc.name}</li>
-            ))}
-        </ul>
-        </div>
-    )}
-    </div>
-  )
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-100 to-green-100 flex items-center justify-center p-4">
@@ -191,13 +146,13 @@ export default function Component() {
               </div>
             )}
 
-            {step === 3 && renderFileUploadStep("Insurance/IDs", "insuranceIds")}
-            {step === 4 && renderFileUploadStep("Patient Medical History", "medicalHistory")}
-            {step === 5 && renderFileUploadStep("Treatment Plans", "treatmentPlans")}
-            {step === 6 && renderFileUploadStep("Consent Forms", "consentForms")}
-            {step === 7 && renderFileUploadStep("Preauthorizations", "preauthorizations")}
-            {step === 8 && renderFileUploadStep("X-Rays", "xrays")}
-            {step === 9 && renderFileUploadStep("Perio Chart", "perioChart")}
+            {step === 3 && renderFileUploadStep({ title: "Insurance/IDs", documentType: "insuranceIds", formData, handleFileUpload })}
+            {step === 4 && renderFileUploadStep({ title: "Patient Medical History", documentType: "medicalHistory", formData, handleFileUpload })}
+            {step === 5 && renderFileUploadStep({ title: "Treatment Plans", documentType: "treatmentPlans", formData, handleFileUpload })}
+            {step === 6 && renderFileUploadStep({ title: "Consent Forms", documentType: "consentForms", formData, handleFileUpload })}
+            {step === 7 && renderFileUploadStep({ title: "Preauthorizations", documentType: "preauthorizations", formData, handleFileUpload })}
+            {step === 8 && renderFileUploadStep({ title: "X-Rays", documentType: "xrays", formData, handleFileUpload })}
+            {step === 9 && renderFileUploadStep({ title: "Perio Chart", documentType: "perioChart", formData, handleFileUpload })}
 
             {step === 10 && (
               <div className="space-y-4">
