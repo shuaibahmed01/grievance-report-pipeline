@@ -55,7 +55,7 @@ export default function Component() {
   }
 
   const handleNext = () => {
-    setStep((prev) => Math.min(prev + 1, 10))
+    setStep((prev) => Math.min(prev + 1, 9))
   }
 
   const handlePrevious = () => {
@@ -161,21 +161,6 @@ export default function Component() {
             {step === 8 && renderFileUploadStep({ title: "X-Rays", documentType: "xrays", formData, handleFileUpload })}
             {step === 9 && renderFileUploadStep({ title: "Perio Chart", documentType: "perioChart", formData, handleFileUpload })}
 
-            {step === 10 && (
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-blue-700">Review and Submit</h3>
-                <div className="space-y-2 bg-blue-50 p-4 rounded-lg">
-                  <p><strong className="text-blue-700">Patient Name:</strong> <span className="text-blue-600">{formData.patientName}</span></p>
-                  <p><strong className="text-blue-700">Patient ID:</strong> <span className="text-blue-600">{formData.patientId}</span></p>
-                  <p><strong className="text-blue-700">Date of Birth:</strong> <span className="text-blue-600">{formData.dateOfBirth}</span></p>
-                  <p><strong className="text-blue-700">Incident Date:</strong> <span className="text-blue-600">{formData.incidentDate}</span></p>
-                  <p><strong className="text-blue-700">Incident Description:</strong> <span className="text-blue-600">{formData.incidentDescription}</span></p>
-                  <p><strong className="text-blue-700">Uploaded Documents:</strong> <span className="text-blue-600">
-                    {Object.values(formData).filter(Array.isArray).reduce((total, arr) => total + arr.length, 0)}
-                    </span></p>
-                </div>
-              </div>
-            )}
           </form>
         </CardContent>
         <CardFooter className="flex justify-between">
@@ -184,7 +169,7 @@ export default function Component() {
               Previous
             </Button>
           )}
-          {step < 10 ? (
+          {step < 9 ? (
             <Button onClick={handleNext} className="ml-auto bg-gradient-to-r from-blue-500 to-green-500 hover:from-blue-600 hover:to-green-600 text-white">
               Next
             </Button>
