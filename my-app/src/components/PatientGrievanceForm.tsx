@@ -9,8 +9,10 @@ import { Textarea } from "@/components/ui/textarea"
 import { Progress } from "@/components/ui/progress"
 import { Upload } from "lucide-react"
 import { renderFileUploadStep, FileUploadKeys } from './FileUploadStep';
+import { useRouter } from 'next/navigation';
 
 export default function Component() {
+  const router = useRouter();
   const [step, setStep] = useState(1)
   interface FormData {
     [key: string]: string | File[];
@@ -44,7 +46,10 @@ export default function Component() {
     if (e.target.files) {
       setFormData((prev) => ({
         ...prev,
-        [documentType]: [...prev[documentType], ...Array.from(e.target.files || [])]
+        [documentType]: [
+          ...prev[documentType],
+          ...Array.from(e.target.files || []).map(file => ({ name: file.name, file }))
+        ]
       }))
     }
   }
@@ -59,8 +64,10 @@ export default function Component() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // Here you would typically send the formData to your backend
-    console.log("Form submitted:", formData)
+    // Store the form data in localStorage or a state management solution
+    localStorage.setItem('grievanceFormData', JSON.stringify(formData));
+    // Navigate to the summary page
+    router.push('/grievance-summary');
   }
 
   type FileUploadKeys = 'insuranceIds' | 'medicalHistory' | 'treatmentPlans' | 'consentForms' | 'preauthorizations' | 'xrays' | 'perioChart';
